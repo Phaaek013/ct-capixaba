@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum TipoUsuario {
+  Coach
+  Aluno
+}
+
+model Usuario {
+  id                Int             @id @default(autoincrement())
+  nome              String
+  email             String          @unique
+  senhaHash         String
+  tipo              TipoUsuario
+  senhaPrecisaTroca Boolean         @default(true)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  treinos           Treino[]        @relation("UsuarioTreinos")
+  feedbacks         Feedback[]
+  documentos        DocumentoPDF[]
+  logs              LogAcao[]
+}
+
+model Treino {
+  id         Int        @id @default(autoincrement())
+  aluno      Usuario?   @relation("UsuarioTreinos", fields: [alunoId], references: [id], onDelete: Cascade)
+  alunoId    Int?
+  dataTreino DateTime?
+  conteudo   String
+  videoUrl   String?
+  ehModelo   Boolean    @default(false)
+  nomeModelo String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  feedbacks  Feedback[]
+
+  @@unique([alunoId, dataTreino])
+}
+
+model Feedback {
+  id          Int      @id @default(autoincrement())
+  aluno       Usuario  @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  alunoId     Int
+  treino      Treino   @relation(fields: [treinoId], references: [id], onDelete: Cascade)
+  treinoId    Int
+  nota        Int
+  rpe         String?
+  observacoes String?
+  enviadoEm   DateTime @default(now())
+
+  @@unique([alunoId, treinoId])
+}
+
+model DocumentoPDF {
+  id        Int        @id @default(autoincrement())
+  titulo    String
+  filePath  String
+  dataEnvio DateTime   @default(now())
+  alunos    Usuario[]
+}
+
+model Config {
+  id           Int      @id @default(1)
+  limiteAlunos Int      @default(100)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model LogAcao {
+  id        Int       @id @default(autoincrement())
+  usuario   Usuario?  @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+  usuarioId Int?
+  tipoAcao  String
+  detalhes  String?
+  dataHora  DateTime  @default(now())
+}

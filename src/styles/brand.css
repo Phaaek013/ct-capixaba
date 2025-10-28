@@ -1,0 +1,115 @@
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background-color: #06080b;
+  color: #f9fafb;
+}
+
+.brand-shell {
+  min-height: 100vh;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid rgba(249, 115, 22, 0.6);
+}
+
+.brand-logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f97316;
+  text-decoration: none;
+}
+
+.brand-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.brand-nav a {
+  color: #fef3c7;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.brand-nav a:hover {
+  color: #f97316;
+}
+
+.brand-content {
+  flex: 1;
+  padding: 2rem 0;
+}
+
+.brand-footer {
+  border-top: 1px solid rgba(249, 115, 22, 0.4);
+  padding: 1.5rem 0 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.brand-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.brand-footer a {
+  color: #f97316;
+  text-decoration: none;
+}
+
+.brand-footer a:hover {
+  text-decoration: underline;
+}
+
+a {
+  color: #f97316;
+}
+
+a:hover {
+  color: #fb923c;
+}
+
+button {
+  background-color: #f97316;
+  color: #0f172a;
+}
+
+button:hover {
+  background-color: #fb923c;
+}
+
+input,
+textarea,
+select {
+  background-color: #111827;
+  color: #f1f5f9;
+  border-color: #1f2937;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #f97316;
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.5);
+}
