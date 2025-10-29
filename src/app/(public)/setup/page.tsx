@@ -1,77 +1,60 @@
-import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { hashSenha } from "@/utils/crypto";
-import { TipoUsuario } from "@prisma/client";
-import { revalidatePath } from "next/cache";
+import { prisma } from '@/lib/prisma';
+import { redirect } from 'next/navigation';
 
-async function criarPrimeiroCoach(formData: FormData) {
-  "use server";
-
-  const nome = (formData.get("nome") as string)?.trim();
-  const email = (formData.get("email") as string)?.toLowerCase();
-  const senha = formData.get("senha") as string;
-  const confirmar = formData.get("confirmar") as string;
-
-  if (!nome || !email || !senha || senha.length < 8 || senha !== confirmar) {
-    redirect("/setup?error=invalid");
-  }
-
-  const existeCoach = await prisma.usuario.count({ where: { tipo: TipoUsuario.Coach } });
-  if (existeCoach > 0) {
-    redirect("/login");
-  }
-
-  const senhaHash = await hashSenha(senha);
-  await prisma.usuario.create({
-    data: {
-      nome,
-      email,
-      senhaHash,
-      tipo: TipoUsuario.Coach,
-      senhaPrecisaTroca: false
-    }
-  });
-
-  revalidatePath("/login");
-  redirect("/login");
-}
-
-interface PageProps {
-  searchParams?: Record<string, string | string[]>;
-}
+type PageProps = { searchParams?: Record<string, string | string[]> };
 
 export default async function SetupPage({ searchParams }: PageProps) {
-  const existeCoach = await prisma.usuario.count({ where: { tipo: TipoUsuario.Coach } });
+  const existeCoach = await prisma.usuario.count({ where: { tipo: 'Coach' } });
   if (existeCoach > 0) {
-    redirect("/login");
+    redirect('/login');
   }
 
-  const mensagemErro = typeof searchParams?.error === "string" ? searchParams?.error : null;
+  const erro = typeof searchParams?.error === 'string' ? searchParams.error : null;
+  const mensagem =
+    erro === 'invalid'
+      ? 'Verifique os dados (senha mínima 8 e confirmação igual).'
+      : erro === 'email'
+      ? 'Este e-mail já está em uso.'
+      : erro === 'unknown'
+      ? 'Não foi possível concluir. Tente novamente.'
+      : null;
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Configurar primeiro Coach</h1>
-      {mensagemErro === "invalid" && (
-        <p className="text-sm text-red-600">Verifique os dados informados e tente novamente.</p>
+    <div className="mx-auto max-w-xl space-y-6 p-6">
+      <h1 className="text-2xl font-bold">Configurar o primeiro Coach</h1>
+
+      {mensagem && (
+        <p className="rounded-md bg-red-50 p-3 text-sm text-red-700">{mensagem}</p>
       )}
-      <form action={criarPrimeiroCoach} className="max-w-md space-y-4">
-        <div>
-          <label htmlFor="nome">Nome</label>
-          <input id="nome" name="nome" required />
+
+      <form method="POST" action="/api/setup" className="space-y-4" noValidate>
+        <div className="space-y-1">
+          <label htmlFor="nome" className="block text-sm font-medium">Nome</label>
+          <input id="nome" name="nome" type="text" required
+                 className="w-full rounded-md border border-neutral-300 bg-white p-2 outline-none focus:border-black" />
         </div>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input id="email" name="email" type="email" required />
+
+        <div className="space-y-1">
+          <label htmlFor="email" className="block text-sm font-medium">E-mail</label>
+          <input id="email" name="email" type="email" required
+                 className="w-full rounded-md border border-neutral-300 bg-white p-2 outline-none focus:border-black" />
         </div>
-        <div>
-          <label htmlFor="senha">Senha</label>
-          <input id="senha" name="senha" type="password" minLength={8} required />
+
+        <div className="space-y-1">
+          <label htmlFor="senha" className="block text-sm font-medium">Senha (mín. 8)</label>
+          <input id="senha" name="senha" type="password" minLength={8} required
+                 className="w-full rounded-md border border-neutral-300 bg-white p-2 outline-none focus:border-black" />
         </div>
-        <div>
-          <label htmlFor="confirmar">Confirmar senha</label>
-          <input id="confirmar" name="confirmar" type="password" minLength={8} required />
+
+        <div className="space-y-1">
+          <label htmlFor="confirmar" className="block text-sm font-medium">Confirmar senha</label>
+          <input id="confirmar" name="confirmar" type="password" minLength={8} required
+                 className="w-full rounded-md border border-neutral-300 bg-white p-2 outline-none focus:border-black" />
         </div>
-        <button type="submit">Criar Coach</button>
+
+        <button type="submit" className="w-full rounded-md bg-black p-2 text-white hover:bg-neutral-800">
+          Criar Coach
+        </button>
       </form>
     </div>
   );
