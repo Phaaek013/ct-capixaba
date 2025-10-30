@@ -44,7 +44,9 @@ export async function createFeedback(
     const treinoId = Number(formData.get("treinoId"));
     const nota = Number(formData.get("nota"));
     const rpe = parseOptionalText(formData.get("rpe"));
-    const observacoes = parseOptionalText(formData.get("observacoes"));
+  const observacoes = parseOptionalText(formData.get("observacoes"));
+  const treinoRealizado = formData.get("treinoRealizado") === "1";
+  const tempoTreino = parseOptionalText(formData.get("tempoTreino"));
 
     if (!Number.isInteger(treinoId) || treinoId <= 0) {
       return { status: "error", message: "Treino inválido." };
@@ -79,13 +81,22 @@ export async function createFeedback(
       return { status: "error", message: "Feedback do dia já enviado." };
     }
 
+    if (!treinoRealizado) {
+      return { status: "error", message: "Só é possível enviar feedback quando o treino for marcado como realizado." };
+    }
+
+    // If tempoTreino was provided, prepend it to observacoes so it's stored.
+    const observacoesFinal = tempoTreino
+      ? `Tempo do treino: ${tempoTreino}\n${observacoes ?? ""}`
+      : observacoes;
+
     await prisma.feedback.create({
       data: {
         alunoId,
         treinoId,
         nota,
         rpe,
-        observacoes,
+        observacoes: observacoesFinal,
         enviadoEm: new Date()
       }
     });
@@ -118,8 +129,10 @@ export async function updateFeedback(
     const feedbackId = Number(formData.get("feedbackId"));
     const treinoId = Number(formData.get("treinoId"));
     const nota = Number(formData.get("nota"));
-    const rpe = parseOptionalText(formData.get("rpe"));
-    const observacoes = parseOptionalText(formData.get("observacoes"));
+  const rpe = parseOptionalText(formData.get("rpe"));
+  const observacoes = parseOptionalText(formData.get("observacoes"));
+  const treinoRealizado = formData.get("treinoRealizado") === "1";
+  const tempoTreino = parseOptionalText(formData.get("tempoTreino"));
 
     if (!Number.isInteger(feedbackId) || feedbackId <= 0) {
       return { status: "error", message: "Feedback inválido." };
@@ -141,12 +154,20 @@ export async function updateFeedback(
       return { status: "error", message: "Feedback não encontrado." };
     }
 
+    if (!treinoRealizado) {
+      return { status: "error", message: "Só é possível enviar feedback quando o treino for marcado como realizado." };
+    }
+
+    const observacoesFinal = tempoTreino
+      ? `Tempo do treino: ${tempoTreino}\n${observacoes ?? ""}`
+      : observacoes;
+
     await prisma.feedback.update({
       where: { id: feedbackId },
       data: {
         nota,
         rpe,
-        observacoes,
+        observacoes: observacoesFinal,
         enviadoEm: new Date()
       }
     });

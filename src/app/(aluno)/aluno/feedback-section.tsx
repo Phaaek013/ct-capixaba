@@ -97,6 +97,22 @@ export default function FeedbackSection({
             placeholder="Percepção de esforço"
           />
         </div>
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="treinoRealizado" value="1" className="h-4 w-4" />
+            <span>Marcar treino como realizado</span>
+          </label>
+          <label className="text-sm flex items-center gap-2">
+            <span className="text-xs text-slate-600">Tempo (min)</span>
+            <input
+              type="text"
+              name="tempoTreino"
+              defaultValue={""}
+              placeholder="ex: 45"
+              className="w-20 rounded border border-slate-300 p-1 text-sm"
+            />
+          </label>
+        </div>
         <div className="space-y-1">
           <label htmlFor="observacoes" className="text-sm font-medium">
             Observações
