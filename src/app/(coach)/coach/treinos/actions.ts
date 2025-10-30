@@ -2,12 +2,13 @@
 
 import { registrarLog } from "@/lib/log";
 import { prisma } from "@/lib/prisma";
+import { startOfDayUTC } from "@/utils/date";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { assertCoach } from "@/lib/roles";
 
 function parseDate(date: string) {
-  return new Date(`${date}T00:00:00.000Z`);
+  return startOfDayUTC(date);
 }
 
 export async function criarTreino(formData: FormData) {
@@ -24,31 +25,33 @@ export async function criarTreino(formData: FormData) {
   }
 
   const data = parseDate(dataTreino);
+
+  // Upsert: if exists for aluno+date, update; otherwise create
   const existente = await prisma.treino.findFirst({
-    where: {
-      alunoId,
-      dataTreino: data,
-      ehModelo: false
-    }
+    where: { alunoId, dataTreino: data, ehModelo: false }
   });
 
+  let treino;
   if (existente) {
-    redirect("/coach/treinos?error=duplicado");
+    treino = await prisma.treino.update({
+      where: { id: existente.id },
+      data: { conteudo, videoUrl: videoUrlRaw || null }
+    });
+  } else {
+    treino = await prisma.treino.create({
+      data: {
+        alunoId,
+        dataTreino: data,
+        conteudo,
+        videoUrl: videoUrlRaw || null,
+        ehModelo: false
+      }
+    });
   }
-
-  const treino = await prisma.treino.create({
-    data: {
-      alunoId,
-      dataTreino: data,
-      conteudo,
-      videoUrl: videoUrlRaw || null,
-      ehModelo: false
-    }
-  });
 
   await registrarLog(
     Number(session.user.id),
-    origemTreinoId ? "DUPLICAR_TREINO" : "CRIAR_TREINO",
+    origemTreinoId ? "DUPLICAR_TREINO" : existente ? "ATUALIZAR_TREINO" : "CRIAR_TREINO",
     origemTreinoId ? `Base ${origemTreinoId} -> ${treino.id}` : `Treino ${treino.id}`
   );
 

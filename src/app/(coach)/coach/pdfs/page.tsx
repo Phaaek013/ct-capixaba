@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { uploadPdf, removePdf } from "./actions";
 import { ConfirmSubmitButton } from "./confirm-submit-button";
-import { TipoUsuario } from "@prisma/client";
 
 interface PageProps {
   searchParams?: Record<string, string | string[]>;
@@ -24,7 +23,7 @@ export default async function PdfsPage({ searchParams }: PageProps) {
   const mensagemSucesso = typeof searchParams?.sucesso === "string" ? searchParams?.sucesso : null;
 
   const [alunos, documentos] = await Promise.all([
-    prisma.usuario.findMany({ where: { tipo: TipoUsuario.Aluno }, orderBy: { nome: "asc" } }),
+  prisma.usuario.findMany({ where: { tipo: 'Aluno' }, orderBy: { nome: "asc" } }),
     prisma.documentoPDF.findMany({ include: { alunos: true }, orderBy: { dataEnvio: "desc" } })
   ]);
 

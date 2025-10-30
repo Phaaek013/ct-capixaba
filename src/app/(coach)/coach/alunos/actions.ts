@@ -3,7 +3,6 @@
 import { registrarLog } from "@/lib/log";
 import { prisma } from "@/lib/prisma";
 import { hashSenha } from "@/utils/crypto";
-import { TipoUsuario } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -26,7 +25,7 @@ export async function criarAluno(formData: FormData) {
         nome,
         email,
         senhaHash,
-        tipo: TipoUsuario.Aluno,
+        tipo: 'Aluno',
         senhaPrecisaTroca: true
       }
     });

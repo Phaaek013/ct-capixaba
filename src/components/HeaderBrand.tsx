@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
+import dynamic from "next/dynamic";
+
+// LogoutButton is a client component; load it dynamically to avoid SSR issues
+const LogoutButton = dynamic(() => import("./LogoutButton"), { ssr: false });
 
 const coachLinks = [
   { href: "/coach", label: "Dashboard" },
@@ -36,6 +40,11 @@ export async function HeaderBrand() {
             </Link>
           ))}
         </nav>
+      )}
+      {session && (
+        <div className="brand-actions">
+          <LogoutButton className="ml-4 px-3 py-2 rounded-md border border-slate-600 bg-transparent text-slate-100 hover:bg-slate-800" />
+        </div>
       )}
     </header>
   );

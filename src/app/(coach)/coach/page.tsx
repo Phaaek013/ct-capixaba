@@ -17,10 +17,7 @@ export default async function CoachDashboard() {
         <Link href="/coach/pdfs" className="bg-white p-4 rounded shadow">PDFs</Link>
         <Link href="/coach/config" className="bg-white p-4 rounded shadow">Configurações</Link>
       </nav>
-      <form action="/api/auth/signout" method="post">
-        <input type="hidden" name="callbackUrl" value="/login" />
-        <button type="submit">Sair</button>
-      </form>
+      {/* Logout handled in header via client LogoutButton */}
     </div>
   );
 }

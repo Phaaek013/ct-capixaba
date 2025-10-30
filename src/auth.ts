@@ -2,7 +2,6 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compararSenha } from "./utils/crypto";
 import { prisma } from "./lib/prisma";
-import { TipoUsuario } from "@prisma/client";
 
 export const authOptions: NextAuthOptions = {
   session: {

@@ -4,6 +4,11 @@ const nextConfig = {
   i18n: {
     locales: ["pt-BR"],
     defaultLocale: "pt-BR"
+  },
+  experimental: {
+    serverActions: {
+      allowedOrigins: ['localhost:3000']
+    }
   }
 };
 

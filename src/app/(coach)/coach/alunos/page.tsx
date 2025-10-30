@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { criarAluno, atualizarAluno, removerAluno } from "./actions";
 import { ConfirmSubmitButton } from "./confirm-submit-button";
-import { TipoUsuario } from "@prisma/client";
 import { assertCoach } from "@/lib/roles";
 
 interface PageProps {
@@ -16,19 +15,19 @@ export default async function AlunosPage({ searchParams }: PageProps) {
   const mensagemSucesso = typeof searchParams?.sucesso === "string" ? searchParams?.sucesso : null;
 
   const alunos = await prisma.usuario.findMany({
-    where: {
-      tipo: TipoUsuario.Aluno,
-      ...(termo
-        ? {
-            OR: [
-              { nome: { contains: termo, mode: "insensitive" } },
-              { email: { contains: termo, mode: "insensitive" } }
-            ]
-          }
-        : {})
-    },
-    orderBy: { createdAt: "desc" }
-  });
+  where: {
+    tipo: 'Aluno',
+    ...(termo
+      ? {
+          OR: [
+            { nome: { contains: termo, mode: 'insensitive' } },
+            { email: { contains: termo, mode: 'insensitive' } },
+          ],
+        }
+      : {}),
+  },
+  orderBy: { createdAt: 'desc' },
+});
 
   return (
     <div className="space-y-6">

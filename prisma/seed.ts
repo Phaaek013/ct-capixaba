@@ -1,4 +1,4 @@
-import { PrismaClient, TipoUsuario } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { hashSenha } from "../src/utils/crypto";
 
 const prisma = new PrismaClient();
@@ -13,7 +13,7 @@ async function main() {
   //     nome: "Coach Demo",
   //     email: "coach@exemplo.com",
   //     senhaHash,
-  //     tipo: TipoUsuario.Coach,
+  //     tipo: Coach,
   //     senhaPrecisaTroca: false
   //   }
   // });

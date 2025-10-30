@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { criarTreino } from "./actions";
 import Link from "next/link";
-import { TipoUsuario } from "@prisma/client";
 import { assertCoach } from "@/lib/roles";
 
 interface PageProps {
@@ -9,7 +8,8 @@ interface PageProps {
 }
 
 function formatarData(data: Date) {
-  return data.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+  // Format date as the stored UTC day so coach sees the intended day (avoid local timezone shift)
+  return data.toLocaleDateString("pt-BR", { timeZone: "UTC" });
 }
 
 export default async function TreinosPage({ searchParams }: PageProps) {
@@ -20,7 +20,7 @@ export default async function TreinosPage({ searchParams }: PageProps) {
   const mensagemSucesso = typeof searchParams?.sucesso === "string" ? searchParams?.sucesso : null;
 
   const [alunos, treinos, origemTreino] = await Promise.all([
-    prisma.usuario.findMany({ where: { tipo: TipoUsuario.Aluno }, orderBy: { nome: "asc" } }),
+    prisma.usuario.findMany({ where: { tipo: 'Aluno' }, orderBy: { nome: "asc" } }),
     prisma.treino.findMany({
       where: { ehModelo: false },
       include: { aluno: true },

@@ -7,17 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum TipoUsuario {
-  Coach
-  Aluno
-}
-
 model Usuario {
   id                Int             @id @default(autoincrement())
   nome              String
   email             String          @unique
   senhaHash         String
-  tipo              TipoUsuario
+  tipo              String          @default("Coach")
   senhaPrecisaTroca Boolean         @default(true)
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt

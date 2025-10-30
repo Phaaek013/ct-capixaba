@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import { criarModelo, usarModelo, removerModelo } from "./actions";
-import { TipoUsuario } from "@prisma/client";
 import { assertCoach } from "@/lib/roles";
 
 interface PageProps {
@@ -15,7 +14,7 @@ export default async function ModelosPage({ searchParams }: PageProps) {
 
   const [modelos, alunos] = await Promise.all([
     prisma.treino.findMany({ where: { ehModelo: true }, orderBy: { updatedAt: "desc" } }),
-    prisma.usuario.findMany({ where: { tipo: TipoUsuario.Aluno }, orderBy: { nome: "asc" } })
+  prisma.usuario.findMany({ where: { tipo: 'Aluno' }, orderBy: { nome: "asc" } })
   ]);
 
   return (

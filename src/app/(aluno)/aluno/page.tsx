@@ -3,8 +3,11 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { getTodayRangeInTZ } from "@/lib/tz";
+import { startOfDayUTC, nextDayUTC } from "@/utils/date";
 import { toEmbed } from "@/lib/youtube";
+import dynamic from "next/dynamic";
+
+const YouTubeEmbed = dynamic(() => import("@/components/YouTubeEmbed"), { ssr: false });
 import { createFeedback, updateFeedback } from "./actions";
 import FeedbackSection from "./feedback-section";
 import AlunoTreinoCache from "./AlunoTreinoCache";
@@ -23,15 +26,21 @@ export default async function AlunoPage() {
   }
 
   const alunoId = Number(session.user.id);
-  const { startUtc, endUtc } = getTodayRangeInTZ(TIMEZONE);
+  // Determine "today" from the student's timezone (so users see "hoje" according
+  // to their local day even if the server clock is in a different date).
+  // We build a date representing the current wall-clock time in TIMEZONE, then
+  // normalize to UTC day boundaries for consistent DB queries.
+  const nowInTz = new Date(new Date().toLocaleString("en-US", { timeZone: TIMEZONE }));
+  const gte = startOfDayUTC(nowInTz);
+  const lt = nextDayUTC(nowInTz);
 
   const treino = await prisma.treino.findFirst({
     where: {
       alunoId,
       ehModelo: false,
       dataTreino: {
-        gte: startUtc,
-        lt: endUtc
+        gte,
+        lt
       }
     }
   });
@@ -62,6 +71,17 @@ export default async function AlunoPage() {
 
   const videoEmbed = treino?.videoUrl ? toEmbed(treino.videoUrl) : null;
 
+  // Histórico: últimos treinos do aluno (inclui ontem/anteriores). Fetch e render abaixo.
+  const historico = await prisma.treino.findMany({
+    where: {
+      alunoId,
+      ehModelo: false
+    },
+    include: { aluno: true },
+    orderBy: { dataTreino: "desc" },
+    take: 10
+  });
+
   return (
     <div className="space-y-6">
       <header className="space-y-1">
@@ -80,33 +100,19 @@ export default async function AlunoPage() {
                 value={treino.conteudo}
               />
               <AlunoTreinoCache
-                dataTreinoISO={treino.dataTreino.toISOString()}
+                alunoId={alunoId}
+                dataTreinoISO={treino.dataTreino ? treino.dataTreino.toISOString() : undefined}
                 conteudo={treino.conteudo}
                 videoUrl={treino.videoUrl ?? undefined}
               />
-              {videoEmbed ? (
-                <iframe
-                  title="Vídeo do treino"
-                  src={videoEmbed}
-                  className="aspect-video w-full rounded border border-slate-200"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              ) : treino.videoUrl ? (
-                <a
-                  href={treino.videoUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-sm text-blue-600 underline"
-                >
-                  Abrir vídeo
-                </a>
+              {videoEmbed || treino.videoUrl ? (
+                <YouTubeEmbed embedUrl={videoEmbed ?? ""} videoUrl={treino.videoUrl ?? undefined} />
               ) : null}
             </>
           ) : (
             <>
               <p className="text-sm text-slate-600">Sem treino para hoje.</p>
-              <AlunoTreinoCache />
+              <AlunoTreinoCache alunoId={alunoId} />
             </>
           )}
         </div>
@@ -151,6 +157,34 @@ export default async function AlunoPage() {
             ))}
           </ul>
         )}
+      </section>
+
+      <section className="rounded border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 className="text-lg font-semibold">Últimos treinos</h2>
+        <div className="mt-3 space-y-3">
+          {historico && historico.length > 0 ? (
+            historico
+              .filter((h) => !treino || h.id !== treino.id)
+              .map((h) => (
+                <article key={h.id} className="rounded border border-slate-200 bg-white p-3">
+                  <p className="text-sm font-medium">{h.aluno?.nome ?? session.user.name ?? session.user.email}</p>
+                  <p className="text-xs text-slate-500">
+                    {h.dataTreino
+                      ? new Date(h.dataTreino).toLocaleDateString("pt-BR", { timeZone: TIMEZONE })
+                      : ""}
+                  </p>
+                  <p className="mt-2 whitespace-pre-wrap text-sm">{h.conteudo}</p>
+                  {h.videoUrl ? (
+                    <a href={h.videoUrl} target="_blank" rel="noreferrer" className="inline-block mt-2 text-sm text-blue-600 underline">
+                      Ver vídeo
+                    </a>
+                  ) : null}
+                </article>
+              ))
+          ) : (
+            <p className="text-sm text-slate-600">Nenhum treino anterior encontrado.</p>
+          )}
+        </div>
       </section>
     </div>
   );

@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import LoginForm from "./login-form";
-import { TipoUsuario } from "@prisma/client";
 
 export default async function LoginPage() {
   const session = await getServerSession(authOptions);
@@ -18,7 +17,7 @@ export default async function LoginPage() {
     redirect("/aluno");
   }
 
-  const totalCoaches = await prisma.usuario.count({ where: { tipo: TipoUsuario.Coach } });
+const totalCoaches = await prisma.usuario.count({ where: { tipo: 'Coach' } });
 
   return (
     <div className="space-y-6">

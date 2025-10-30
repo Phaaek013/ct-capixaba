@@ -6,6 +6,7 @@ type Props = {
   dataTreinoISO?: string;
   conteudo?: string;
   videoUrl?: string;
+  alunoId?: number;
 };
 
 type CachedTreino = {
@@ -14,9 +15,11 @@ type CachedTreino = {
   videoUrl?: string | null;
 };
 
-const STORAGE_KEY = "treinoHoje";
+function keyFor(alunoId?: number) {
+  return alunoId ? `treinoHoje:${alunoId}` : `treinoHoje:anon`;
+}
 
-export default function AlunoTreinoCache({ dataTreinoISO, conteudo, videoUrl }: Props) {
+export default function AlunoTreinoCache({ dataTreinoISO, conteudo, videoUrl, alunoId }: Props) {
   const [cache, setCache] = useState<CachedTreino | null>(null);
 
   useEffect(() => {
@@ -31,7 +34,7 @@ export default function AlunoTreinoCache({ dataTreinoISO, conteudo, videoUrl }: 
           conteudo,
           videoUrl: videoUrl ?? null
         };
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        window.localStorage.setItem(keyFor(alunoId), JSON.stringify(payload));
         setCache(null);
       } catch (_) {
         // ignora falhas de armazenamento offline
@@ -40,7 +43,7 @@ export default function AlunoTreinoCache({ dataTreinoISO, conteudo, videoUrl }: 
     }
 
     try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
+      const raw = window.localStorage.getItem(keyFor(alunoId));
       if (raw) {
         const parsed = JSON.parse(raw) as CachedTreino;
         if (parsed?.conteudo) {
@@ -62,7 +65,8 @@ export default function AlunoTreinoCache({ dataTreinoISO, conteudo, videoUrl }: 
 
   const dataLabel = cache.dataTreinoISO
     ? new Date(cache.dataTreinoISO).toLocaleDateString("pt-BR", {
-        timeZone: "America/Sao_Paulo"
+        // Use UTC so the saved day (date-only) is shown consistently regardless of client TZ
+        timeZone: "UTC"
       })
     : null;
 

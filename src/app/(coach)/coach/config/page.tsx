@@ -3,7 +3,6 @@ import { authOptions } from "@/auth";
 import { redirect } from "next/navigation";
 import { getConfig } from "@/lib/config";
 import { prisma } from "@/lib/prisma";
-import { TipoUsuario } from "@prisma/client";
 import { salvarConfig } from "./actions";
 
 interface PageProps {
@@ -21,7 +20,7 @@ export default async function ConfigPage({ searchParams }: PageProps) {
 
   const [config, totalAlunos, totalTreinos, totalDocumentos] = await Promise.all([
     getConfig(),
-    prisma.usuario.count({ where: { tipo: TipoUsuario.Aluno } }),
+  prisma.usuario.count({ where: { tipo: 'Aluno' } }),
     prisma.treino.count({ where: { ehModelo: false } }),
     prisma.documentoPDF.count()
   ]);
