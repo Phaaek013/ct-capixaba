@@ -1,67 +1,13 @@
+/* Global styles (plain CSS, no Tailwind directives) */
+
 :root {
-  --bg: #0b0d10;
-  --card: #141821;
-  --border: #232836;
+  --bg: #0f172a;
+  --card: #111827;
+  --border: #1f2937;
   --text: #e6e8ef;
-  --muted: #a6aec3;
+  --muted: #94a3b8;
   --primary: #ff7a1a;
-  --link: #89b4ff;
-}
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Ensure elements that use Tailwind's bg-white remain readable in dark theme
-   (many components use `bg-white` for cards — force dark text color inside them) */
-.bg-white {
-  color: #0f172a; /* slate-900 */
-}
-
-.bg-white :is(h1,h2,h3,h4,h5,h6,p,span,label,a,button,input,textarea,select,li) {
-  color: #0f172a;
-}
-
-/* Inputs inside white cards should have dark text and preserve white background */
-.bg-white input,
-.bg-white select {
-  background: #fff;
-  color: #0f172a;
-  border-color: #e5e7eb;
-}
-
-/* Keep the "treino" content area as a dark navy box (like the original design).
-   Target readonly textareas inside white cards (used to display treino.conteudo).
-   Also allow an explicit utility class `.treino-box` for other elements. */
-.bg-white textarea[readonly],
-.bg-white textarea.treino-box,
-.bg-white .treino-box {
-  background: #0f172a; /* dark navy */
-  color: var(--text);
-  border: 1px solid #111827;
-  padding: 1rem;
-  border-radius: 0.375rem;
-}
-
-/* Restore blue heading badge inside white cards (keeps heading visible with white text)
-   while leaving body text dark for readability. */
-.bg-white > h2,
-.bg-white > h3 {
-  display: inline-block;
-  background: #3b82f6; /* blue-500 */
-  color: #ffffff;
-  padding: 0.25rem 0.6rem;
-  border-radius: 0.25rem;
-  margin: 0 0 0.75rem 0;
-}
-:root {
-  --bg: #0b0d10;
-  --card: #141821;
-  --border: #232836;
-  --text: #e6e8ef;
-  --muted: #a6aec3;
-  --primary: #ff7a1a;
-  --link: #89b4ff;
+  --link: #60a5fa;
 }
 
 html, body {
@@ -69,50 +15,53 @@ html, body {
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-
-a {
-  color: var(--link);
-}
-
-button {
-  background: transparent;
-  color: var(--text);
-  padding: 0.4rem 0.8rem;
-  border-radius: 0.375rem;
-}
-
-input,
-textarea,
-select {
-  width: 100%;
-  border: 1px solid var(--border);
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  background: transparent;
-  color: var(--text);
-}
-
-label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 0.25rem;
-}
-
-form {
   margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
 }
 
 .card {
-  background: var(--card);
+  background-color: var(--card);
   border: 1px solid var(--border);
   color: var(--text);
-  border-radius: 0.5rem;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.treino-box {
+  background-color: #0b1220;
+  border: 1px solid #111827;
+  color: var(--text);
+  border-radius: 6px;
+  padding: 12px;
 }
 
 .muted { color: var(--muted); }
 
-/* keep tailwind utilities available for quick overrides */
+.btn-primary {
+  background-color: var(--primary);
+  color: #0f172a;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  border: none;
+}
+
+.btn-primary:hover { opacity: 0.95; }
+
+a { color: var(--link); }
+
+input, textarea, select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  background: transparent;
+  color: var(--text);
+}
+
+label { display: block; font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px }
+
+/* compatibility: ensure components that still use bg-white don't look broken */
+.bg-white { background-color: var(--card) !important; color: var(--text) !important; }

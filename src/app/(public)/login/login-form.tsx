@@ -1,13 +1,28 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export default function LoginForm() {
   const router = useRouter();
   const [erro, setErro] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(false);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const err = searchParams.get("error");
+    if (err) {
+      // Map common NextAuth error codes to user-friendly messages
+      const map: Record<string, string> = {
+        CredentialsSignin: "Credenciais inválidas",
+        AccessDenied: "Acesso negado",
+        Configuration: "Erro de configuração de autenticação",
+      };
+      setErro(map[err] ?? "Erro ao autenticar");
+    }
+  }, [searchParams]);
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

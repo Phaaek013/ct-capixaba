@@ -1,0 +1,67 @@
+/* Dark theme styles */
+:root {
+  --bg: #0b0d10;
+  --card: #141821;
+  --border: #232836;
+  --text: #e6e8ef;
+  --muted: #a6aec3;
+  --primary: #ff7a1a;
+  --link: #89b4ff;
+}
+
+/* Card styles */
+.card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  color: var(--text);
+}
+
+/* Treino box styles */
+.treino-box {
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  padding: 1rem;
+  color: var(--text);
+}
+
+/* Text styles */
+.muted {
+  color: var(--muted);
+}
+
+/* Link styles */
+.card a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+.card a:hover {
+  text-decoration: underline;
+}
+
+/* Form elements */
+input, textarea, select {
+  background-color: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: var(--primary);
+  color: var(--bg);
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}

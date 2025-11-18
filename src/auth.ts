@@ -8,8 +8,10 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60
   },
+  // Redirect NextAuth to the custom login page and show errors there
   pages: {
-    signIn: "/login"
+    signIn: "/login",
+    error: "/login"
   },
   providers: [
     CredentialsProvider({

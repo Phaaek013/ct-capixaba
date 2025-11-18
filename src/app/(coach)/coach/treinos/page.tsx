@@ -8,8 +8,7 @@ interface PageProps {
 }
 
 function formatarData(data: Date) {
-  // Format date as the stored UTC day so coach sees the intended day (avoid local timezone shift)
-  return data.toLocaleDateString("pt-BR", { timeZone: "UTC" });
+  return data.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
 }
 
 export default async function TreinosPage({ searchParams }: PageProps) {

@@ -1,0 +1,189 @@
+import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/auth";
+import { startOfDayUTC, nextDayUTC } from "@/utils/date";
+import { toEmbed } from "@/lib/youtube";
+import dynamic from "next/dynamic";
+        <section className="card">
+const YouTubeEmbed = dynamic(() => import("@/components/YouTubeEmbed"), { ssr: false });
+import { createFeedback, updateFeedback } from "./actions";
+import FeedbackSection from "./feedback-section";
+import AlunoTreinoCache from "./AlunoTreinoCache";
+
+                  className="h-48 w-full resize-none treino-box text-sm"
+
+export default async function AlunoPage() {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect("/login");
+  }
+
+  if (session.user.tipo !== "Aluno") {
+    redirect("/coach");
+  }
+
+  const alunoId = Number(session.user.id);
+  // Determine "today" from the student's timezone (so users see "hoje" according
+  // to their local day even if the server clock is in a different date).
+                <p className="text-sm muted">Sem treino para hoje.</p>
+  // normalize to UTC day boundaries for consistent DB queries.
+  const nowInTz = new Date(new Date().toLocaleString("en-US", { timeZone: TIMEZONE }));
+  const gte = startOfDayUTC(nowInTz);
+  const lt = nextDayUTC(nowInTz);
+
+  const treino = await prisma.treino.findFirst({
+        <section className="card">
+      alunoId,
+      ehModelo: false,
+      dataTreino: {
+        gte,
+        lt
+      }
+    }
+  });
+
+            <p className="mt-3 text-sm muted">Envie seu feedback quando um treino estiver disponível.</p>
+    ? await prisma.feedback.findUnique({
+        where: {
+          alunoId_treinoId: {
+        <section className="card">
+            treinoId: treino.id
+          }
+            <p className="mt-3 text-sm muted">Nenhum documento disponível.</p>
+      })
+    : null;
+
+  const pdfs = await prisma.documentoPDF.findMany({
+    where: {
+                  <p className="text-xs muted">
+        some: {
+          id: alunoId
+        }
+      }
+    },
+    orderBy: {
+      dataEnvio: "desc"
+                    className="inline-block text-sm"
+  });
+
+  const videoEmbed = treino?.videoUrl ? toEmbed(treino.videoUrl) : null;
+
+  // Histórico: últimos treinos do aluno (inclui ontem/anteriores). Fetch e render abaixo.
+  const historico = await prisma.treino.findMany({
+    where: {
+      alunoId,
+      ehModelo: false
+    },
+    include: { aluno: true },
+    orderBy: { dataTreino: "desc" },
+    take: 10
+  });
+
+  return (
+    <div className="space-y-6">
+      <header className="space-y-1">
+        <h1 className="text-2xl font-semibold">Meu Treino</h1>
+          <p className="text-sm muted">{session.user.email}</p>
+      </header>
+
+      <section className="rounded border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 className="text-lg font-semibold">Treino de hoje</h2>
+        <div className="mt-3 space-y-4">
+          {treino ? (
+            <>
+              <textarea
+                className="h-48 w-full resize-none rounded border border-slate-300 p-2 text-sm"
+                readOnly
+                value={treino.conteudo}
+              />
+                <div className="card space-y-2">
+                alunoId={alunoId}
+                dataTreinoISO={treino.dataTreino ? treino.dataTreino.toISOString() : undefined}
+                conteudo={treino.conteudo}
+                videoUrl={treino.videoUrl ?? undefined}
+              />
+              {videoEmbed || treino.videoUrl ? (
+                <YouTubeEmbed embedUrl={videoEmbed ?? ""} videoUrl={treino.videoUrl ?? undefined} />
+              ) : null}
+                    <div className="space-y-4 treino-box">
+          ) : (
+            <>
+              <p className="text-sm text-slate-600">Sem treino para hoje.</p>
+              <AlunoTreinoCache alunoId={alunoId} />
+                    <p className="text-sm muted">Sem treino para hoje.</p>
+          )}
+        </div>
+      </section>
+
+                    <div className="mt-6 card">
+        <h2 className="text-lg font-semibold">Feedback</h2>
+        {treino ? (
+          <FeedbackSection
+            treinoId={treino.id}
+            feedback={feedback}
+            createAction={createFeedback}
+            updateAction={updateFeedback}
+          />
+        ) : (
+            <p className="mt-3 text-sm muted">Envie seu feedback quando um treino estiver disponível.</p>
+        )}
+      </section>
+
+      <section className="rounded border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 className="text-lg font-semibold">Meus PDFs</h2>
+        {pdfs.length === 0 ? (
+            <p className="mt-3 text-sm muted">Nenhum documento disponível.</p>
+                    <p className="mt-3 text-sm muted">
+          <ul className="mt-3 space-y-3">
+            {pdfs.map((pdf) => (
+              <li key={pdf.id} className="space-y-1">
+                <p className="text-sm font-medium">{pdf.titulo}</p>
+                <p className="text-xs text-slate-500">
+                  {new Date(pdf.dataEnvio).toLocaleString("pt-BR", {
+                    timeZone: TIMEZONE
+                  })}
+                </p>
+                <Link
+                  href={pdf.filePath}
+                  target="_blank"
+                          <a href={`/api/docs/${doc.id}`}>
+                >
+                  Abrir documento
+                </Link>
+              </li>
+            ))}
+          </ul>
+                    <p className="mt-3 text-sm muted">
+      </section>
+
+      <section className="rounded border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 className="text-lg font-semibold">Últimos treinos</h2>
+        <div className="mt-3 space-y-3">
+          {historico && historico.length > 0 ? (
+            historico
+              .filter((h) => !treino || h.id !== treino.id)
+              .map((h) => (
+                <article key={h.id} className="rounded border border-slate-200 bg-white p-3">
+                  <p className="text-sm font-medium">{h.aluno?.nome ?? session.user.name ?? session.user.email}</p>
+                  <p className="text-xs text-slate-500">
+                    {h.dataTreino
+                      ? new Date(h.dataTreino).toLocaleDateString("pt-BR", { timeZone: TIMEZONE })
+                      : ""}
+                  </p>
+                  <p className="mt-2 whitespace-pre-wrap text-sm">{h.conteudo}</p>
+                  {h.videoUrl ? (
+                    <a href={h.videoUrl} target="_blank" rel="noreferrer" className="inline-block mt-2 text-sm text-blue-600 underline">
+                      Ver vídeo
+                    </a>
+                  ) : null}
+                </article>
+              ))
+          ) : (
+            <p className="text-sm text-slate-600">Nenhum treino anterior encontrado.</p>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}

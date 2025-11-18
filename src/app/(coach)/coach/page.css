@@ -1,0 +1,24 @@
+/* Estilos específicos para a navegação do coach */
+.coach-nav {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.coach-nav a {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+  display: block;
+  width: 100%;
+}
+
+.coach-nav .card {
+  transition: all 0.2s ease-in-out;
+}
+
+.coach-nav .card:hover {
+  transform: translateY(-1px);
+  border-color: var(--primary);
+  background: var(--card);
+}
